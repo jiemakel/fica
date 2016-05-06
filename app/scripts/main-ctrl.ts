@@ -6,6 +6,7 @@ namespace app {
 
   export class MainController {
     constructor(private $scope: IMainScope) {
+
     }
   }
 }
