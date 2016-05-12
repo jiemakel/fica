@@ -1,0 +1,42 @@
+script(type="text/ng-template",id="group")
+  a(href="",ng-click="group.open=!group.open") {{group.label}} ({{group.accepted}}/{{group.filtered}}/{{group.unprocessed}})
+  div(ng-if="group.open")
+    ul(ng-if="group.subgroups"): li(ng-repeat="group in group.subgroups track by $index",ng-include="'group'")
+    table.table.table-striped.table-hover.table-bordered(ng-if="group.rows")
+        tr: th(ng-repeat="heading in headings") {{heading}}
+        tr(ng-click="acceptF(group,row)",ng-repeat="row in group.rows track by $index"): td(ng-repeat="heading in headings track by $index") {{data[row][$index]}}
+script(type="text/ng-template",id="selectSheet")
+  .modal-header
+    h3.modal-title Preview
+  .modal-body
+    uib-tabset
+      uib-tab(ng-repeat="sheet in sheets",heading="{{sheet.name}}",active="sheet.active")
+        div(style="overflow:scroll;max-height:500px"): table.table.table-bordered.table-striped
+          tr
+            th(ng-if="firstRowIsHeader",ng-repeat="header in sheet.data[0] track by $index") {{header}}
+            th(ng-if="!firstRowIsHeader",ng-repeat="header in sheet.data[0] track by $index") Column {{$index + 1}}
+          tr(ng-repeat="row in sheet.data | limitTo:10:(skipRows+(firstRowIsHeader ? 1 : 0)) track by $index"): td(ng-repeat="column in row track by $index") {{column}}
+  .modal-footer
+    .checkbox
+      label
+        input(type="checkbox",ng-model="firstRowIsHeader")
+        | Use first row as header
+    input(type="number",ng-model="$parent.skipRows",placeholder="skip rows")
+    button.btn.btn-success(ng-click="$close();loadSheet()") Load
+script(type="text/ng-template",id="popover")
+  table.table.table-condensed.table-bordered.table-striped
+    tr(ng-repeat="descr in candidate.additionalDescription track by $index")
+      th {{state.additionalDescriptionHeadings[$index]}}
+      td(ng-bind-html="descr | trustAsHtml")
+button.btn.btn-success(ngf-select,ngf-change="loadFile($files[0])",ngf-multiple="false") Load File
+div
+  h3 Groupings
+  span(ng-repeat="grouping in groupings")
+    select(ng-model="groupings[$index]",ng-options="index as heading for (index,heading) in headings")
+    button.btn.btn-sm.btn-danger(ng-click="groupings.splice($index,1)") X
+  | Add grouping:
+  select(ng-model="newGrouping",ng-options="index as heading for (index,heading) in headings")
+    option
+uib-pagination.pagination-sm(ng-model="currentPage",items-per-page="100",max-size="4",total-items="groupedData.length",boundary-links="true",previous-text="‹",next-text="›",first-text="«",last-text="»")
+ul: li(ng-repeat="group in groupedData | limitTo:100:(currentPage-1)*100 track by $index",ng-include="'group'")
+uib-pagination.pagination-sm(ng-model="currentPage",items-per-page="100",max-size="4",total-items="groupedData.length",boundary-links="true",previous-text="‹",next-text="›",first-text="«",last-text="»")

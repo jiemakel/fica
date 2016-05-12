@@ -16,9 +16,12 @@
     "files": [
         "app/scripts/app.ts",
         "app/scripts/main-ctrl.ts",
+        "typings/browser/ambient/angular-ui-bootstrap/index.d.ts",
         "typings/browser/ambient/angular-ui-router/index.d.ts",
         "typings/browser/ambient/angular/index.d.ts",
-        "typings/browser/ambient/jquery/index.d.ts"
+        "typings/browser/ambient/filesaver/index.d.ts",
+        "typings/browser/ambient/jquery/index.d.ts",
+        "typings/browser/ambient/papaparse/index.d.ts"
     ],
     "atom": {
         "rewriteTsconfig": true
