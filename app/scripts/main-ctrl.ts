@@ -30,7 +30,8 @@ namespace app {
     newGrouping: number
     groupings: number[]
     groupedData: Group[]
-    acceptF: (group: Group, row: number) => void
+    click: (group: Group, row: number, event: MouseEvent) => void
+    mouseOver: (group: Group, row: number, event: MouseEvent) => void
   }
 
   class Group {
@@ -48,20 +49,62 @@ namespace app {
 
   export class MainController {
     constructor(private $scope: IMainScope, $uibModal: angular.ui.bootstrap.IModalService, $localStorage: any) {
-      $scope.data = $localStorage.data
-      $scope.accept = $scope.data.map(() => 0)
+      $scope.data = $localStorage.data ? $localStorage.data : []
+      $scope.accept = $localStorage.accept ? $localStorage.accept : []
       $scope.headings = $localStorage.headings
       $scope.fileName = $localStorage.fileName
       $scope.groupings = []
-      $scope.acceptF = (group: Group, row: number) => {
-        if ($scope.accept[row] !== 1) {
-          $scope.accept[row] = 1
-          while (group) {
-            group.accepted++
-            group.unprocessed--
-            group = group.parentGroup
-          }
+      let accept: (group: Group, row: number) => void = (group: Group, row: number) => {
+        switch ($scope.accept[row]) {
+          case 0:
+            while (group) {
+              group.accepted++
+              group.unprocessed--
+              group = group.parentGroup
+            }
+            break
+          case 1:
+            break
+          case 2:
+            while (group) {
+              group.accepted++
+              group.filtered--
+              group = group.parentGroup
+            }
+            break
+          default: throw 'Unknown accept state: ' + $scope.accept[row]
         }
+        $scope.accept[row] = 1
+      }
+      let filter: (group: Group, row: number) => void = (group: Group, row: number) => {
+        switch ($scope.accept[row]) {
+          case 0:
+            while (group) {
+              group.filtered++
+              group.unprocessed--
+              group = group.parentGroup
+            }
+            break
+          case 1:
+            while (group) {
+              group.filtered++
+              group.accepted--
+              group = group.parentGroup
+            }
+            break
+          case 2:
+            break
+          default: throw 'Unknown accept state: ' + $scope.accept[row]
+        }
+        $scope.accept[row] = 2
+      }
+      $scope.mouseOver = (group: Group, row: number, event: MouseEvent) => {
+        if (event.ctrlKey) accept(group, row)
+        else if (event.altKey) filter(group, row)
+      }
+      $scope.click = (group: Group, row: number, event: MouseEvent) => {
+        if ($scope.accept[row] === 1) filter(group, row)
+        else accept(group, row)
       }
       let buildGroup: (rows: number[], groupingIndex: number) => Group[] = (rows: number[], groupingIndex: number) => {
         let groupRowMap: { [index: string]: number[] } = {}
@@ -120,6 +163,8 @@ namespace app {
         $scope.data = data
         $localStorage.data = $scope.data
         $scope.data.splice(0,  ($scope.skipRows ? $scope.skipRows : 0) + ($scope.firstRowIsHeader ? 1 : 0))
+        $scope.accept = $scope.data.map(() => 0)
+        $localStorage.accept = $scope.accept
       }
       let handleError: (error: IError) => void = (error: IError) => $scope.error = error
       $scope.firstRowIsHeader = true
