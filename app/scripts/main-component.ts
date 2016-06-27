@@ -7,6 +7,7 @@ namespace app {
 
   class GroupRow {
     public memberRows: string[][] = []
+    public lastRow: number
     public row: string[] = []
     public class: string
   }
@@ -184,7 +185,7 @@ namespace app {
       this.hotkeys.add({combo: 'alt+tab', allowIn: ['INPUT', 'TD'], callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
         this.altKeyDown = true
         if (this.groupedData[this.state.currentRow] instanceof GroupRow)
-          this.state.currentRow += (<GroupRow>this.groupedData[this.state.currentRow]).memberRows.length
+          this.state.currentRow = (<GroupRow>this.groupedData[this.state.currentRow]).lastRow
         this.next()
         event.preventDefault()
       }})
@@ -225,7 +226,7 @@ namespace app {
       for (let i: number = 0; i < this.state.headings.length; i++)  {
         this.totalBlanks[i] = 0
         this.filteredBlanks[i] = 0
-     }
+      }
       this.data.forEach((row, index) => {
         let allowed: boolean = true
         this.state.filters.forEach((filter: string, columnIndex: number) => {
@@ -250,6 +251,7 @@ namespace app {
           for (let i: number = 0; i < this.state.groupings.length; i++) {
             let groupIndex: number = this.state.groupings[i]
             if (currentGroups[i].row[groupIndex] !== row[groupIndex]) {
+              currentGroups[i].lastRow = this.groupedData.length - 1
               currentGroups[i] = new GroupRow()
               currentGroups[i].row[row.length - 1] = undefined
               currentGroups[i].class = MainComponentController.groupingClasses[i]
@@ -262,6 +264,7 @@ namespace app {
           this.groupedData.push(row)
         }
       })
+      for (let i: number = 0; i < this.state.groupings.length; i++) currentGroups[i].lastRow = this.groupedData.length
     }
     private setRow(row: number): void {
       this.state.currentRow = row
@@ -270,7 +273,7 @@ namespace app {
       if (!this.altKeyDown) this.selectedRows = {}
       this.selectedRows[row] = row
       if (this.groupedData[row] instanceof GroupRow && (<GroupRow>this.groupedData[row]).memberRows.length !== 1)
-        for (let i: number = row + 1; i <= row + (<GroupRow>this.groupedData[row]).memberRows.length; i++) this.selectedRows[i] = i
+        for (let i: number = row + 1; i <= (<GroupRow>this.groupedData[row]).lastRow; i++) this.selectedRows[i] = i
       let crow: string[] = this.groupedData[row] instanceof GroupRow ? ((<GroupRow>this.groupedData[row]).memberRows.length === 1 ? (<GroupRow>this.groupedData[row]).memberRows[0] : (<GroupRow>this.groupedData[row]).row) : <string[]>this.groupedData[row]
       this.contextURLs = []
       if (crow[5]) this.contextURLs.push(this.$sce.trustAsResourceUrl('#/ceec-concord/' + crow[5]))

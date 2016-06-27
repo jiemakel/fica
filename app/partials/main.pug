@@ -35,5 +35,5 @@
       h4 Import/Export
       button.btn.btn-success(ngf-select,ngf-change="$ctrl.loadFile($files[0])",ngf-multiple="false") Load File
       button.btn.btn-danger(ng-click="$ctrl.save()",ng-show="$ctrl.dirty") Save State
-      button.btn.btn-warning(ng-click="$ctrl.saveCSV()") Export CSV
+      button.btn.btn-warning(ng-click="$ctrl.saveCSVFile()") Export CSV
       div {{error}}
