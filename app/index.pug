@@ -6,6 +6,7 @@ html(lang="en",ng-app="app",ng-hint)
     // build:css(app) styles/vendor.css
     // bower:css
     link(rel='stylesheet', href='bower_components/bootstrap/dist/css/bootstrap.css')
+    link(rel='stylesheet', href='bower_components/angular-hotkeys/build/hotkeys.css')
     // endbower
     // endbuild
     // build:css(.tmp) styles/main.css
@@ -29,24 +30,32 @@ html(lang="en",ng-app="app",ng-hint)
     // build:js(app) scripts/vendor.js
     // bower:js
     script(src='bower_components/angular/angular.js')
-    script(src='bower_components/jquery/dist/jquery.js')
     script(src='bower_components/angular-ui-router/release/angular-ui-router.js')
     script(src='bower_components/angular-http-auth/src/http-auth-interceptor.js')
-    script(src='bower_components/bootstrap/dist/js/bootstrap.js')
-    script(src='bower_components/js-xlsx/dist/xlsx.js')
+    script(src='bower_components/jquery/dist/jquery.js')
+    script(src='bower_components/js-xlsx/dist/xlsx.full.min.js')
     script(src='bower_components/papaparse/papaparse.js')
     script(src='bower_components/ng-file-upload/ng-file-upload.js')
     script(src='bower_components/FileSaver/FileSaver.js')
     script(src='bower_components/angular-bootstrap/ui-bootstrap-tpls.js')
     script(src='bower_components/ngstorage/ngStorage.js')
+    script(src='bower_components/angular-endless-scroll/dist/angular-endless-scroll.js')
+    script(src='bower_components/angular-sparql-service/dist/sparql-service.js')
+    script(src='bower_components/angular-hotkeys/build/hotkeys.js')
+    script(src='bower_components/angular-local-storage/dist/angular-local-storage.js')
+    script(src='bower_components/ng-focus-on/ng-focus-on.js')
     // endbower
     // endbuild
 
     // build:js(.tmp) scripts/main.js
     script(src="scripts/app.js")
-    script(src="scripts/main-ctrl.js")
+    // inject:scripts
+    script(src="scripts/ceec-concord-component.js")
+    script(src="scripts/main-component.js")
+    script(src="scripts/selectSheet-service.js")
+    // endinject
     // inject:partials
     // endinject
     // endbuild
-    main(ui-view="")
+    .main(ui-view="")
     .uib-modal-backdrop.fade.in(ng-show="authOpen")

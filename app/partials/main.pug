@@ -1,42 +1,39 @@
-script(type="text/ng-template",id="group")
-  a(href="",ng-click="group.open=!group.open") {{group.label}} ({{group.accepted}}/{{group.filtered}}/{{group.unprocessed}})
-  div(ng-if="group.open")
-    ul(ng-if="group.subgroups"): li(ng-repeat="group in group.subgroups track by $index",ng-include="'group'")
-    table.table.table-striped.table-hover.table-bordered(ng-if="group.rows")
-        tr: th(ng-repeat="heading in headings") {{heading}}
-        tr(ng-class="{ success: accept[row]===1, danger: accept[row]===2 }",ng-mouseover="mouseOver(group,row,$event)",ng-click="click(group,row,$event)",ng-repeat="row in group.rows track by $index"): td(ng-repeat="heading in headings track by $index") {{data[row][$index]}}
-script(type="text/ng-template",id="selectSheet")
-  .modal-header
-    h3.modal-title Preview
-  .modal-body
-    uib-tabset
-      uib-tab(ng-repeat="sheet in sheets",heading="{{sheet.name}}",active="sheet.active")
-        div(style="overflow:scroll;max-height:500px"): table.table.table-bordered.table-striped
-          tr
-            th(ng-if="firstRowIsHeader",ng-repeat="header in sheet.data[0] track by $index") {{header}}
-            th(ng-if="!firstRowIsHeader",ng-repeat="header in sheet.data[0] track by $index") Column {{$index + 1}}
-          tr(ng-repeat="row in sheet.data | limitTo:10:(skipRows+(firstRowIsHeader ? 1 : 0)) track by $index"): td(ng-repeat="column in row track by $index") {{column}}
-  .modal-footer
-    .checkbox
-      label
-        input(type="checkbox",ng-model="firstRowIsHeader")
-        | Use first row as header
-    input(type="number",ng-model="$parent.skipRows",placeholder="skip rows")
-    button.btn.btn-success(ng-click="$close();loadSheet()") Load
-script(type="text/ng-template",id="popover")
-  table.table.table-condensed.table-bordered.table-striped
-    tr(ng-repeat="descr in candidate.additionalDescription track by $index")
-      th {{state.additionalDescriptionHeadings[$index]}}
-      td(ng-bind-html="descr | trustAsHtml")
-button.btn.btn-success(ngf-select,ngf-change="loadFile($files[0])",ngf-multiple="false") Load File
-div
-  h3 Groupings
-  span(ng-repeat="grouping in groupings")
-    select(ng-model="groupings[$index]",ng-options="index as heading for (index,heading) in headings")
-    button.btn.btn-sm.btn-danger(ng-click="groupings.splice($index,1)") X
-  | Add grouping:
-  select(ng-model="newGrouping",ng-options="index as heading for (index,heading) in headings")
-    option
-uib-pagination.pagination-sm(ng-model="currentPage",items-per-page="100",max-size="4",total-items="groupedData.length",boundary-links="true",previous-text="‹",next-text="›",first-text="«",last-text="»")
-ul: li(ng-repeat="group in groupedData | limitTo:100:(currentPage-1)*100 track by $index",ng-include="'group'")
-uib-pagination.pagination-sm(ng-model="currentPage",items-per-page="100",max-size="4",total-items="groupedData.length",boundary-links="true",previous-text="‹",next-text="›",first-text="«",last-text="»")
+.row(style="height:100%")
+  .col-xs-6(style="overflow:auto;height:100%")
+    table.table.table-condensed.table-bordered
+      tr: th(ng-repeat="heading in $ctrl.state.headings track by $index",ng-click="$ctrl.setSortBy($index)") {{heading}}
+        span(ng-if="$ctrl.totalBlanks[$index] != 0")  ({{$ctrl.totalBlanks[$index] != $ctrl.filteredBlanks[$index] ? $ctrl.filteredBlanks[$index] + '/' + $ctrl.totalBlanks[$index] : $ctrl.totalBlanks[$index]}})
+        span(ng-if="$ctrl.state.sortBy == $index",ng-class="$ctrl.state.sortDesc ? 'glyphicon glyphicon-chevron-up' : 'glyphicon glyphicon-chevron-down'")
+      tr: th(ng-repeat="heading in $ctrl.state.headings track by $index"): input.form-control(ng-model="$ctrl.state.filters[$index]",ng-change="$ctrl.updateGroupedData()",ng-model-options='{ debounce: 500 }')
+      tr(ng-attr-tabindex="{{row.row && row.memberRows.length !=1 ? '0' : ''}}",ng-class="$ctrl.selectedRows[$ctrl.state.currentPageOffset + $index] !== undefined ? 'info': row.class",focus-on="row{{$ctrl.state.currentPageOffset + $index}}",ng-click="$ctrl.mouseFocus($ctrl.state.currentPageOffset+$index,$event.altKey)",ng-repeat="row in $ctrl.groupedData | limitTo : $ctrl.config.pageSize : $ctrl.state.currentPageOffset track by $index")
+        // plain row
+        td(ng-repeat="column in (row.row ? [] : row) track by $index")
+          input.form-control(select-on-focus,focus-on="row{{$ctrl.state.currentPageOffset + $parent.$parent.$index}}",ng-style="{'min-width': row[0].length+'rem'}",ng-if="$index==0",ng-model="row[0]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
+          span(ng-if="$index!=0") {{column}}
+        // grouping row column that participates in grouping
+        th(ng-if="column",ng-repeat-start="column in (row.row ? row.row : []) track by $index"): span(ng-if="column")
+          input.form-control(select-on-focus,focus-on="row{{$ctrl.state.currentPageOffset + $parent.$parent.$parent.$parent.$index}}",ng-style="{'min-width': row[0].length+'rem'}",ng-if="row.memberRows.length == 1 && $index==0",ng-model="row.memberRows[0][0]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
+          span(ng-if="$index==0 && row.memberRows.length > 1",tabindex="0") {{column}}
+            span &nbsp;({{row.memberRows.length}})
+          span(ng-if="$index!=0") {{column}}
+            span(ng-if="row.memberRows.length!=1") &nbsp;({{row.memberRows.length}})
+        // grouping row column that doesn't participate in grouping
+        td(ng-if="!column",ng-repeat-end): span(ng-if="row.memberRows.length==1")
+          input.form-control(select-on-focus,focus-on="row{{$ctrl.state.currentPageOffset + $parent.$parent.$parent.$parent.$index}}",ng-style="{'min-width': row[0].length+'rem'}",ng-if="$index==0",ng-model="row.memberRows[0][0]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
+          span(ng-if="$index!=0") {{row.memberRows[0][$index]}}
+    uib-pagination.pagination-sm(ng-model="$ctrl.currentPage",ng-change="$ctrl.setRow(($ctrl.currentPage - 1) * $ctrl.config.pageSize)",items-per-page="$ctrl.config.pageSize",max-size="10",total-items="$ctrl.groupedData.length",boundary-links="true",previous-text="‹",next-text="›",first-text="«",last-text="»")
+  .col-xs-6(style="height:100%")
+    iframe(style="width:100%;height:300px",ng-repeat="contextURL in $ctrl.contextURLs",ng-src="{{contextURL}}")
+    div(style="position:absolute;bottom:0")
+      h4 Groupings
+      span(ng-repeat="grouping in $ctrl.state.groupings")
+        select(ng-model="$ctrl.state.groupings[$index]",ng-change="$ctrl.groupingsUpdated()",ng-options="index-0 as heading for (index,heading) in $ctrl.state.headings")
+        button.btn.btn-sm.btn-danger(ng-click="$ctrl.removeGrouping($index)") X
+      | Add grouping:
+      select(ng-model="newGrouping",ng-options="index-0 as heading for (index,heading) in $ctrl.state.headings",ng-change="$ctrl.addNewGrouping(newGrouping);newGrouping=undefined")
+        option
+      h4 Import/Export
+      button.btn.btn-success(ngf-select,ngf-change="$ctrl.loadFile($files[0])",ngf-multiple="false") Load File
+      button.btn.btn-danger(ng-click="$ctrl.save()",ng-show="$ctrl.dirty") Save State
+      button.btn.btn-warning(ng-click="$ctrl.saveCSV()") Export CSV
+      div {{error}}
