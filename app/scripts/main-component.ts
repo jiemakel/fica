@@ -100,14 +100,15 @@ namespace app {
     }
     public mouseFocus(row: number, altKey: boolean): void {
       this.altKeyDown = altKey
-      this.setRow(row)
+      this.setRow(row, false)
     }
     public save(): void {
       this.localStorageService.set('data', this.data)
       this.dirty = false
     }
-    constructor(private $uibModal: angular.ui.bootstrap.IModalService, private $localStorage: any, private localStorageService: any, private $http: angular.IHttpService, private $sce: angular.ISCEService, private selectSheetService: SelectSheetService, private hotkeys: angular.hotkeys.HotkeysProvider, private focus: any) {}
+    constructor(private $uibModal: angular.ui.bootstrap.IModalService, private $localStorage: any, private localStorageService: any, private $http: angular.IHttpService, private $sce: angular.ISCEService, private selectSheetService: SelectSheetService, private hotkeys: angular.hotkeys.HotkeysProvider, private focus: any, private $window: angular.IWindowService) {}
     public $onInit(): void {
+      this.$window.onunload = () => { this.save() }
       if (!this.$localStorage.state) this.$localStorage.state = new State()
       this.state = this.$localStorage.state
       if (!this.$localStorage.config) this.$localStorage.config = new Config()
@@ -232,7 +233,9 @@ namespace app {
         this.state.filters.forEach((filter: string, columnIndex: number) => {
           if (filter !== null && filter !== '') {
             if (filter.indexOf('!') === 0) {
-              if (row[columnIndex].indexOf(filter.substring(1)) === 0) allowed = false
+              if (filter === '!') {
+                if (row[columnIndex] !== '') allowed = false
+              } else if (row[columnIndex].indexOf(filter.substring(1)) === 0) allowed = false
             } else if (filter.indexOf('>') === 0) {
               if (row[columnIndex] <= parseInt(filter.substring(1), 10)) allowed = false
             } else if (filter.indexOf('<') === 0) {
@@ -266,19 +269,21 @@ namespace app {
       })
       for (let i: number = 0; i < this.state.groupings.length; i++) currentGroups[i].lastRow = this.groupedData.length
     }
-    private setRow(row: number): void {
-      this.state.currentRow = row
-      this.currentPage = Math.floor(this.state.currentRow / this.config.pageSize + 1)
-      this.state.currentPageOffset = (this.currentPage - 1) * this.config.pageSize
-      if (!this.altKeyDown) this.selectedRows = {}
-      this.selectedRows[row] = row
-      if (this.groupedData[row] instanceof GroupRow && (<GroupRow>this.groupedData[row]).memberRows.length !== 1)
-        for (let i: number = row + 1; i <= (<GroupRow>this.groupedData[row]).lastRow; i++) this.selectedRows[i] = i
-      let crow: string[] = this.groupedData[row] instanceof GroupRow ? ((<GroupRow>this.groupedData[row]).memberRows.length === 1 ? (<GroupRow>this.groupedData[row]).memberRows[0] : (<GroupRow>this.groupedData[row]).row) : <string[]>this.groupedData[row]
-      this.contextURLs = []
-      if (crow[5]) this.contextURLs.push(this.$sce.trustAsResourceUrl('#/ceec-concord/' + crow[5]))
-      if (crow[0]) this.contextURLs.push(this.$sce.trustAsResourceUrl('http://www.oed.com/search?searchType=dictionary&q=' + crow[0]))
-      this.focus('row' + row)
+    private setRow(row: number, focus: boolean = true): void {
+      if (this.state.currentRow !== row) {
+        this.state.currentRow = row
+        this.currentPage = Math.floor(this.state.currentRow / this.config.pageSize + 1)
+        this.state.currentPageOffset = (this.currentPage - 1) * this.config.pageSize
+        if (!this.altKeyDown) this.selectedRows = {}
+        this.selectedRows[row] = row
+        if (this.groupedData[row] instanceof GroupRow && (<GroupRow>this.groupedData[row]).memberRows.length !== 1)
+          for (let i: number = row + 1; i <= (<GroupRow>this.groupedData[row]).lastRow; i++) this.selectedRows[i] = i
+        let crow: string[] = this.groupedData[row] instanceof GroupRow ? ((<GroupRow>this.groupedData[row]).memberRows.length === 1 ? (<GroupRow>this.groupedData[row]).memberRows[0] : (<GroupRow>this.groupedData[row]).row) : <string[]>this.groupedData[row]
+        this.contextURLs = []
+        if (crow[5]) this.contextURLs.push(this.$sce.trustAsResourceUrl('#/ceec-concord/' + crow[5]))
+        if (crow[0]) this.contextURLs.push(this.$sce.trustAsResourceUrl('http://www.oed.com/search?searchType=dictionary&q=' + crow[0]))
+        if (focus) this.focus('row' + row)
+      }
     }
 
   }

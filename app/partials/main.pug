@@ -9,18 +9,19 @@
         // plain row
         td(ng-repeat="column in (row.row ? [] : row) track by $index")
           input.form-control(select-on-focus,focus-on="row{{$ctrl.state.currentPageOffset + $parent.$parent.$index}}",ng-style="{'min-width': row[0].length+'rem'}",ng-if="$index==0",ng-model="row[0]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
-          span(ng-if="$index!=0") {{column}}
+          input.form-control(select-on-focus,ng-if="$index!=0",ng-model="row[$index]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
         // grouping row column that participates in grouping
         th(ng-if="column",ng-repeat-start="column in (row.row ? row.row : []) track by $index"): span(ng-if="column")
           input.form-control(select-on-focus,focus-on="row{{$ctrl.state.currentPageOffset + $parent.$parent.$parent.$parent.$index}}",ng-style="{'min-width': row[0].length+'rem'}",ng-if="row.memberRows.length == 1 && $index==0",ng-model="row.memberRows[0][0]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
           span(ng-if="$index==0 && row.memberRows.length > 1",tabindex="0") {{column}}
             span &nbsp;({{row.memberRows.length}})
-          span(ng-if="$index!=0") {{column}}
+          input.form-control(select-on-focus,ng-if="row.memberRows.length == 1 && $index!=0",ng-model="row.memberRows[0][$index]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
+          span(ng-if="$index!=0 && row.memberRows.length != 1") {{column}}
             span(ng-if="row.memberRows.length!=1") &nbsp;({{row.memberRows.length}})
         // grouping row column that doesn't participate in grouping
         td(ng-if="!column",ng-repeat-end): span(ng-if="row.memberRows.length==1")
           input.form-control(select-on-focus,focus-on="row{{$ctrl.state.currentPageOffset + $parent.$parent.$parent.$parent.$index}}",ng-style="{'min-width': row[0].length+'rem'}",ng-if="$index==0",ng-model="row.memberRows[0][0]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
-          span(ng-if="$index!=0") {{row.memberRows[0][$index]}}
+          input.form-control(select-on-focus,ng-if="$index!=0",ng-model="row.memberRows[0][$index]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
     uib-pagination.pagination-sm(ng-model="$ctrl.currentPage",ng-change="$ctrl.setRow(($ctrl.currentPage - 1) * $ctrl.config.pageSize)",items-per-page="$ctrl.config.pageSize",max-size="10",total-items="$ctrl.groupedData.length",boundary-links="true",previous-text="‹",next-text="›",first-text="«",last-text="»")
   .col-xs-6(style="height:100%")
     iframe(style="width:100%;height:300px",ng-repeat="contextURL in $ctrl.contextURLs",ng-src="{{contextURL}}")
@@ -34,6 +35,6 @@
         option
       h4 Import/Export
       button.btn.btn-success(ngf-select,ngf-change="$ctrl.loadFile($files[0])",ngf-multiple="false") Load File
-      button.btn.btn-danger(ng-click="$ctrl.save()",ng-show="$ctrl.dirty") Save State
+      button.btn.btn-danger(ng-click="$ctrl.groupingsUpdated()",ng-show="$ctrl.dirty") Save State
       button.btn.btn-warning(ng-click="$ctrl.saveCSVFile()") Export CSV
       div {{error}}
