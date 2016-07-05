@@ -26,7 +26,7 @@ LIMIT 30`
             let tmp: HTMLDivElement = document.createElement('div')
             tmp.textContent = r['fulltext'].value
             let ft: string = tmp.innerHTML
-            let regexp: RegExp = new RegExp('(' + $stateParams['word'].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + ')')
+            let regexp: RegExp = new RegExp('(' + $stateParams['word'].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + ')', 'i')
             let before: string
             let after: string
             let parts: string[] = ft.split(regexp)
