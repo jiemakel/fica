@@ -40,7 +40,7 @@ LIMIT 30`
                 after = parts[i]
                 lastBefore = parts[i]
               }
-              this.concordances.push(new Snippet(this.$sce.trustAsHtml(before), $stateParams['word'], this.$sce.trustAsHtml(after)))
+              this.concordances.push(new Snippet(this.$sce.trustAsHtml(before), parts[i - 1], this.$sce.trustAsHtml(after)))
             }
           })
         }
