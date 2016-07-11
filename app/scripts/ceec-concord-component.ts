@@ -4,7 +4,7 @@ namespace app {
   import s = fi.seco.sparql
 
   class Snippet {
-    constructor(public before: any, public match: string, public after: any) {}
+    constructor(public before: any, public match: string, public after: any, public fulltext: any, public id: string) {}
   }
 
   export class CeecConcordComponentController {
@@ -17,39 +17,56 @@ SELECT DISTINCT ?id ?fulltext WHERE {
   ?id cs:fulltext ?fulltext .
 }
 LIMIT 30`
+    public word: string
     public concordances: Snippet[]
-    constructor(private sparqlService: s.SparqlService, private $sce: angular.ISCEService, private $stateParams: angular.ui.IStateParamsService) {
-      sparqlService.query('http://ldf.fi/ceec/sparql', CeecConcordComponentController.query.replace(/<QUERY>/g, sparqlService.stringToSPARQLString($stateParams['word']))).then(
+    public open(letterId: string): void {
+      this.$window.open('http://h89.it.helsinki.fi/ceec/func/letterFunc.jsp?letterID=' + letterId, '_blank')
+    }
+    public $onChanges(): void {
+      if (this.word) this.sparqlService.query('http://ldf.fi/ceec/sparql', CeecConcordComponentController.query.replace(/<QUERY>/g, this.sparqlService.stringToSPARQLString(this.word))).then(
         (response: angular.IHttpPromiseCallbackArg<s.ISparqlBindingResult<{[id: string]: s.ISparqlBinding}>>) => {
           this.concordances = []
           response.data.results.bindings.forEach(r => {
             let tmp: HTMLDivElement = document.createElement('div')
             tmp.textContent = r['fulltext'].value
             let ft: string = tmp.innerHTML
-            let regexp: RegExp = new RegExp('(' + $stateParams['word'].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + ')', 'i')
+            let regexp: RegExp = new RegExp('(\\b' + this.word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + ')', 'i')
             let before: string
             let after: string
             let parts: string[] = ft.split(regexp)
-            let lastBefore: string = parts[0].length > 60 ? parts[0].substring(parts[0].length - 60) : parts[0]
+            let lastBefore: string = parts[0].length > 120 ? parts[0].substring(parts[0].length - 120) : parts[0]
+            if (parts[0].length > 1000)
+              ft = parts[0].substring(0, 500) + '<span style="color:red">...</span>' + parts[0].substring(parts[0].length - 500)
+            else ft = parts[0]
             for (let i: number = 2; i < parts.length; i += 2) {
+              ft += '<span style="color:blue">'
+              ft += parts[i - 1]
+              ft += '</span>'
               before = lastBefore
-              if (parts[i].length > 60) {
-                after = parts[i].substring(0, 60)
-                lastBefore = parts[i].substring(parts[i].length - 60)
+              if (parts[i].length > 120) {
+                after = parts[i].substring(0, 120)
+                lastBefore = parts[i].substring(parts[i].length - 120)
               } else {
                 after = parts[i]
                 lastBefore = parts[i]
               }
-              this.concordances.push(new Snippet(this.$sce.trustAsHtml(before), parts[i - 1], this.$sce.trustAsHtml(after)))
+              if (parts[i].length > 1000)
+                ft += parts[i].substring(0, 500) + '<span style="color:red">...</span>' + parts[i].substring(parts[i].length - 500)
+              else ft += parts[i]
+              this.concordances.push(new Snippet(this.$sce.trustAsHtml(before), parts[i - 1], this.$sce.trustAsHtml(after), this.$sce.trustAsHtml(ft), r['id'].value.replace('http://ldf.fi/ceec/letter_', '')))
             }
           })
         }
       )
     }
+    constructor(private sparqlService: s.SparqlService, private $sce: angular.ISCEService, private $window: angular.IWindowService) {}
   }
 
   export class CeecConcordComponent implements angular.IComponentOptions {
     public controller: Function = CeecConcordComponentController
+    public bindings: {[param: string]: string} = {
+      'word': '<'
+    }
     public templateUrl: string = 'partials/ceec-concord.html'
   }
 }

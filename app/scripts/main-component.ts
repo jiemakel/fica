@@ -36,7 +36,7 @@ namespace app {
 
     public state: State
     public config: Config
-    public contextURLs: string[]
+    public contexts: {}[]
 
     public dirty: boolean = false
 
@@ -121,66 +121,28 @@ namespace app {
         combo: 'ctrl+1',
         allowIn: ['INPUT', 'TD'],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
-          this.altKeyDown = false
-          let lastRow: number = 0
-          for (let row in this.selectedRows) {
-            if (this.groupedData[row] instanceof GroupRow) {
-              let grow: GroupRow = (<GroupRow>this.groupedData[row])
-              grow.row[1] = 'yes'
-              grow.memberRows.forEach(row => {
-                if (row[1] === '') {
-                  this.totalBlanks[1]--
-                  this.filteredBlanks[1]--
-                }
-                row[1] = 'yes'
-              })
-            } else {
-              if (this.groupedData[row][1] === '')  {
-                this.totalBlanks[1]--
-                this.filteredBlanks[1]--
-              }
-              this.groupedData[row][1] = 'yes'
-            }
-            if (lastRow < this.selectedRows[row]) lastRow = this.selectedRows[row]
-          }
-          while (!this.groupedData[lastRow] && lastRow < this.groupedData.length - 2)
-            lastRow++
-          this.dirty = true
-          this.setRow(lastRow + 1)
-          event.preventDefault()
+          this.setColumnValues(1, 'yes')
         }
       })
       this.hotkeys.add({
         combo: 'ctrl+2',
         allowIn: ['INPUT', 'TD'],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
-          this.altKeyDown = false
-          let lastRow: number = 0
-          for (let row in this.selectedRows) {
-            if (this.groupedData[row] instanceof GroupRow) {
-              let grow: GroupRow = (<GroupRow>this.groupedData[row])
-              grow.row[1] = 'no'
-              grow.memberRows.forEach(row => {
-                if (row[1] === '') {
-                  this.totalBlanks[1]--
-                  this.filteredBlanks[1]--
-               }
-                row[1] = 'no'
-              })
-            } else {
-              if (this.groupedData[row][1] === '')  {
-                this.totalBlanks[1]--
-                this.filteredBlanks[1]--
-             }
-              this.groupedData[row][1] = 'no'
-            }
-            if (lastRow < this.selectedRows[row]) lastRow = this.selectedRows[row]
-          }
-          while (!this.groupedData[lastRow] && lastRow < this.groupedData.length - 2)
-            lastRow++
-          this.dirty = true
-          this.setRow(lastRow + 1)
-          event.preventDefault()
+          this.setColumnValues(1, 'no')
+        }
+      })
+      this.hotkeys.add({
+        combo: 'ctrl+3',
+        allowIn: ['INPUT', 'TD'],
+        callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
+          this.setColumnValues(1, 'unclear')
+        }
+      })
+      this.hotkeys.add({
+        combo: 'ctrl+4',
+        allowIn: ['INPUT', 'TD'],
+        callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
+          this.setColumnValues(1, 'adj')
         }
       })
       this.hotkeys.add({combo: 'alt+tab', allowIn: ['INPUT', 'TD'], callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
@@ -205,16 +167,18 @@ namespace app {
     public $onDestroy(): void {
       this.hotkeys.del('ctrl+1')
       this.hotkeys.del('ctrl+2')
+      this.hotkeys.del('ctrl+3')
+      this.hotkeys.del('ctrl+4')
       this.hotkeys.del('tab')
       this.hotkeys.del('shift+tab')
       this.save()
     }
     private next(): void {
-      if (this.state.currentRow === this.groupedData.length - 1) this.setRow(0)
+      if (this.state.currentRow === this.groupedData.length - 1 || this.state.currentRow === undefined) this.setRow(0)
       else this.setRow(this.state.currentRow + 1)
     }
     private prev(): void {
-      if (this.state.currentRow === 0) this.setRow(this.groupedData.length - 1)
+      if (this.state.currentRow === 0 || this.state.currentRow === undefined) this.setRow(this.groupedData.length - 1)
       else this.setRow(this.state.currentRow - 1)
     }
     private updateGroupedData(): void {
@@ -279,13 +243,40 @@ namespace app {
         if (this.groupedData[row] instanceof GroupRow && (<GroupRow>this.groupedData[row]).memberRows.length !== 1)
           for (let i: number = row + 1; i <= (<GroupRow>this.groupedData[row]).lastRow; i++) this.selectedRows[i] = i
         let crow: string[] = this.groupedData[row] instanceof GroupRow ? ((<GroupRow>this.groupedData[row]).memberRows.length === 1 ? (<GroupRow>this.groupedData[row]).memberRows[0] : (<GroupRow>this.groupedData[row]).row) : <string[]>this.groupedData[row]
-        this.contextURLs = []
-        if (crow[5]) this.contextURLs.push(this.$sce.trustAsResourceUrl('#/ceec-concord/' + crow[5]))
-        if (crow[0]) this.contextURLs.push(this.$sce.trustAsResourceUrl('http://www.oed.com/search?searchType=dictionary&q=' + crow[0]))
+        this.contexts = []
+        if (crow[5]) this.contexts.push(this.$sce.trustAsHtml('<ceec-concord word="\'' + crow[5].replace(/'/g, '\\\'') + '\'"></ceec-concord>'))
+        if (crow[0]) this.contexts.push(this.$sce.trustAsHtml('<iframe style="width:100%;height:300px" src="http://www.oed.com/search?searchType=dictionary&q=' + encodeURI(crow[0]) + '"></iframe>'))
         if (focus) this.focus('row' + row)
       }
     }
-
+    private setColumnValues(index: number, value: string): void {
+      this.altKeyDown = false
+      let lastRow: number = 0
+      for (let row in this.selectedRows) {
+        if (this.groupedData[row] instanceof GroupRow) {
+          let grow: GroupRow = (<GroupRow>this.groupedData[row])
+          grow.row[index] = value
+          grow.memberRows.forEach(row => {
+            if (row[index] === '') {
+              this.totalBlanks[index]--
+              this.filteredBlanks[index]--
+            }
+            row[index] = value
+          })
+        } else {
+          if (this.groupedData[row][index] === '')  {
+            this.totalBlanks[index]--
+            this.filteredBlanks[index]--
+          }
+          this.groupedData[row][index] = value
+        }
+        if (lastRow < this.selectedRows[row]) lastRow = this.selectedRows[row]
+      }
+      while (!this.groupedData[lastRow] && lastRow < this.groupedData.length - 2)
+        lastRow++
+      this.dirty = true
+      this.setRow(lastRow + 1)
+    }
   }
 
   export class MainComponent implements angular.IComponentOptions {

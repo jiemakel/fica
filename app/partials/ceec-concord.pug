@@ -1,5 +1,7 @@
-table
-  tr(ng-repeat="row in $ctrl.concordances")
+script(type="text/ng-template",id="popover.html")
+  .small.black(ng-bind-html="row.fulltext")
+table.table.table-striped.table-condensed
+  tr(ng-repeat="row in $ctrl.concordances",uib-popover-template="'popover.html'",popover-trigger="mouseenter",popover-placement="bottom",ng-click="$ctrl.open(row.id)")
     td.pull-right(ng-bind-html="row.before")
     th &nbsp;{{row.match}}&nbsp;
     td(ng-bind-html="row.after")

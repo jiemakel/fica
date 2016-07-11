@@ -24,7 +24,7 @@
           input.form-control(select-on-focus,ng-if="$index!=0",ng-model="row.memberRows[0][$index]",ng-model-options='{ debounce: 500 }',ng-change="$ctrl.dirty=true")
     uib-pagination.pagination-sm(ng-model="$ctrl.currentPage",ng-change="$ctrl.setRow(($ctrl.currentPage - 1) * $ctrl.config.pageSize)",items-per-page="$ctrl.config.pageSize",max-size="10",total-items="$ctrl.groupedData.length",boundary-links="true",previous-text="‹",next-text="›",first-text="«",last-text="»")
   .col-xs-6(style="height:100%")
-    iframe(style="width:100%;height:300px",ng-repeat="contextURL in $ctrl.contextURLs",ng-src="{{contextURL}}")
+    div(ng-repeat="context in $ctrl.contexts",bind-html-compile="context",style="max-height:300px;overflow:auto")
     div(style="position:absolute;bottom:0")
       h4 Groupings
       span(ng-repeat="grouping in $ctrl.state.groupings")

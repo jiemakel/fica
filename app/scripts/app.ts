@@ -26,9 +26,23 @@ namespace app {
 
   export class SelectOnFocusDirective {
     public restrict: string = 'A'
-    public link: (...any) => void = (scope: angular.IScope, element: JQuery, attr: angular.IAttributes) => {
+    public link(scope: angular.IScope, element: JQuery, attr: angular.IAttributes): void {
       element.on('mouseup', function (event: JQueryEventObject): void { event.preventDefault(); })
       element.on('focus', function (event: JQueryEventObject): void { this.select(); })
+    }
+  }
+
+  export class BindHtmlCompileDirective {
+    public restrict: string = 'A'
+    constructor(private $compile: angular.ICompileService) {}
+    public link: (...any) => void = (scope: angular.IScope, element: JQuery, attrs: angular.IAttributes) => {
+      scope.$watch(() => scope.$eval(attrs['bindHtmlCompile']), (value) => {
+        element.html(value && value.toString())
+        let compileScope: angular.IScope = scope
+        if (attrs['bindHtmlScope'])
+          compileScope = scope.$eval(attrs['bindHtmlScope'])
+        this.$compile(element.contents())(compileScope)
+      })
     }
   }
 
