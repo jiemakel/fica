@@ -58946,7 +58946,7 @@ var fi;
                     }, params));
                 };
                 SparqlService.prototype.stringToSPARQLString = function (string) {
-                    return '"' + string.replace(/"/g, '\\"') + '"';
+                    return '"' + string.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
                 };
                 SparqlService.prototype.bindingsToObject = function (result) {
                     var ret = {};
