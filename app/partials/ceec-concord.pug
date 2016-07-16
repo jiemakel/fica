@@ -5,3 +5,4 @@ table.table.table-striped.table-condensed
     td.pull-right(ng-bind-html="row.before")
     th &nbsp;{{row.match}}&nbsp;
     td(ng-bind-html="row.after")
+  tr.danger(ng-show="$ctrl.more",ng-click="$ctrl.update(false)"): td(colspan="3",style="text-align: center") ...

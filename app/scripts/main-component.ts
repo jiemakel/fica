@@ -121,28 +121,28 @@ namespace app {
         combo: 'ctrl+1',
         allowIn: ['INPUT', 'TD'],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
-          this.setColumnValues(1, 'yes')
+          this.setColumnValues(2, 'yes')
         }
       })
       this.hotkeys.add({
         combo: 'ctrl+2',
         allowIn: ['INPUT', 'TD'],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
-          this.setColumnValues(1, 'no')
+          this.setColumnValues(2, 'no')
         }
       })
       this.hotkeys.add({
         combo: 'ctrl+3',
         allowIn: ['INPUT', 'TD'],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
-          this.setColumnValues(1, 'unclear')
+          this.setColumnValues(2, 'unclear')
         }
       })
       this.hotkeys.add({
         combo: 'ctrl+4',
         allowIn: ['INPUT', 'TD'],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
-          this.setColumnValues(1, 'adj')
+          this.setColumnValues(2, 'adj')
         }
       })
       this.hotkeys.add({combo: 'alt+tab', allowIn: ['INPUT', 'TD'], callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
@@ -244,7 +244,7 @@ namespace app {
           for (let i: number = row + 1; i <= (<GroupRow>this.groupedData[row]).lastRow; i++) this.selectedRows[i] = i
         let crow: string[] = this.groupedData[row] instanceof GroupRow ? ((<GroupRow>this.groupedData[row]).memberRows.length === 1 ? (<GroupRow>this.groupedData[row]).memberRows[0] : (<GroupRow>this.groupedData[row]).row) : <string[]>this.groupedData[row]
         this.contexts = []
-        if (crow[5]) this.contexts.push(this.$sce.trustAsHtml('<ceec-concord word="\'' + crow[5].replace(/'/g, '\\\'') + '\'"></ceec-concord>'))
+        if (crow[1]) this.contexts.push(this.$sce.trustAsHtml('<ceec-concord word="\'' + crow[1].replace(/'/g, '\\\'') + '\'"></ceec-concord>'))
         if (crow[0]) this.contexts.push(this.$sce.trustAsHtml('<iframe style="width:100%;height:300px" src="http://www.oed.com/search?searchType=dictionary&q=' + encodeURI(crow[0]) + '"></iframe>'))
         if (focus) this.focus('row' + row)
       }
