@@ -25,7 +25,7 @@ SELECT DISTINCT ?id ?fulltext WHERE {
     public concordances: Snippet[]
     public more: boolean = false
     public open(letterId: string, text: string, event: MouseEvent): void {
-      if (event.altKey) this.$window.open('https://www.google.com/search?tbm=bks&q=' + encodeURIComponent(text), '_blank')
+      if (event.altKey) this.$window.open('https://www.google.com/search?tbm=bks&q="' + encodeURIComponent(text) + '"', '_blank')
       else this.$window.open('http://h89.it.helsinki.fi/ceec/func/letterFunc.jsp?letterID=' + letterId, '_blank')
     }
     public $onChanges(): void {
@@ -63,7 +63,7 @@ SELECT DISTINCT ?id ?fulltext WHERE {
             let lastBefore: string
             if (parts[0].length > 120) {
               lastBefore = parts[0].substring(parts[0].length - 120)
-              lastBefore = lastBefore.substring(lastBefore.indexOf(' '))
+              lastBefore = lastBefore.substring(lastBefore.indexOf(' ') + 1)
             } else lastBefore = parts[0]
             if (parts[0].length > 1000) {
               let sentences: string[] = parts[0].substring(parts[0].length - 500).split(/([\.\?!])/)
@@ -83,7 +83,7 @@ SELECT DISTINCT ?id ?fulltext WHERE {
                 after = parts[i].substring(0, 120)
                 after = after.substring(0, after.lastIndexOf(' '))
                 lastBefore = parts[i].substring(parts[i].length - 120)
-                lastBefore = lastBefore.substring(lastBefore.indexOf(' '))
+                lastBefore = lastBefore.substring(lastBefore.indexOf(' ') + 1)
               } else {
                 after = parts[i]
                 lastBefore = parts[i]
@@ -105,10 +105,10 @@ SELECT DISTINCT ?id ?fulltext WHERE {
                 ft += sentences.join('')
               }
               tmp.innerHTML = before
-              before = tmp.textContent
-              tmp.innerHTML = after
-              after = tmp.textContent
+              before = tmp.textContent.replace(/\n/g, ' ')
               let beforeS: string[] = before.split(/\s/)
+              tmp.innerHTML = after
+              after = tmp.textContent.replace(/\n/g, ' ')
               this.concordances.push(new Snippet(this.$sce.trustAsHtml(before), beforeS[beforeS.length - 1].toLowerCase(), before, parts[i - 1], this.$sce.trustAsHtml(after), after.toLowerCase(), after, this.$sce.trustAsHtml(ft), r['id'].value.replace('http://ldf.fi/ceec/letter_', '')))
             }
           })
