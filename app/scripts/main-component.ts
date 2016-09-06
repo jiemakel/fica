@@ -39,6 +39,7 @@ namespace app {
     public contexts: {}[]
 
     public dirty: boolean = false
+    public groupingsDirty: boolean = false
 
     public selectedRows: {[id: number]: number} = {}
 
@@ -104,6 +105,7 @@ namespace app {
     }
     public save(): void {
       this.localStorageService.set('data', this.data)
+      this.groupingsDirty = this.dirty
       this.dirty = false
     }
     constructor(private $uibModal: angular.ui.bootstrap.IModalService, private $localStorage: any, private localStorageService: any, private $http: angular.IHttpService, private $sce: angular.ISCEService, private selectSheetService: SelectSheetService, private hotkeys: angular.hotkeys.HotkeysProvider, private focus: any, private $window: angular.IWindowService) {}
@@ -163,6 +165,7 @@ namespace app {
       this.hotkeys.add({combo: 'alt+shift+tab', allowIn: ['INPUT', 'TD'], callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
         this.altKeyDown = true; this.prev(); event.preventDefault()
       }})
+      this.groupingsUpdated()
     }
     public $onDestroy(): void {
       this.hotkeys.del('ctrl+1')
@@ -182,12 +185,13 @@ namespace app {
       else this.setRow(this.state.currentRow - 1)
     }
     private updateGroupedData(): void {
+      this.groupingsDirty = false
       let currentGroups: GroupRow[] = this.state.groupings.map(v => new GroupRow())
       this.groupedData = []
       this.selectedRows = {}
       this.state.currentRow = undefined
-      this.currentPage = 1
-      this.state.currentPageOffset = 0
+//      this.currentPage = 1
+//      this.state.currentPageOffset = 0
       for (let i: number = 0; i < this.state.headings.length; i++)  {
         this.totalBlanks[i] = 0
         this.filteredBlanks[i] = 0
@@ -244,8 +248,8 @@ namespace app {
           for (let i: number = row + 1; i <= (<GroupRow>this.groupedData[row]).lastRow; i++) this.selectedRows[i] = i
         let crow: string[] = this.groupedData[row] instanceof GroupRow ? ((<GroupRow>this.groupedData[row]).memberRows.length === 1 ? (<GroupRow>this.groupedData[row]).memberRows[0] : (<GroupRow>this.groupedData[row]).row) : <string[]>this.groupedData[row]
         this.contexts = []
-        if (crow[1]) this.contexts.push(this.$sce.trustAsHtml('<ceec-concord word="\'' + crow[1].replace(/'/g, '\\\'') + '\'"></ceec-concord>'))
-        if (crow[0]) this.contexts.push(this.$sce.trustAsHtml('<iframe style="width:100%;height:300px" src="http://www.oed.com/search?searchType=dictionary&q=' + encodeURI(crow[0]) + '"></iframe>'))
+        if (crow[1]) this.contexts.push(this.$sce.trustAsHtml('<ceec-concord word="\'' + crow[1].replace(/\\/g, '\\\\').replace(/'/g, '\\\'') + '\'"></ceec-concord>'))
+        if (crow[0]) this.contexts.push(this.$sce.trustAsHtml('<iframe style="width:100%;height:100%" src="http://www.oed.com/search?searchType=dictionary&q=' + encodeURI(crow[0]) + '"></iframe>'))
         if (focus) this.focus('row' + row)
       }
     }

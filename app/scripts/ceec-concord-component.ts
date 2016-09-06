@@ -4,27 +4,43 @@ namespace app {
   import s = fi.seco.sparql
 
   class Snippet {
-    constructor(public before: any, public match: string, public after: any, public fulltext: any, public id: string) {}
+    constructor(public before: any, public beforeSort: string, public beforeString, public match: string, public after: any, public afterSort: string, public afterString: string, public fulltext: any, public id: string) {}
   }
 
   export class CeecConcordComponentController {
     private static query: string = `
 PREFIX text: <http://jena.apache.org/text#>
 PREFIX cs: <http://ldf.fi/ceec-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT DISTINCT ?id ?fulltext WHERE {
   BIND(CONCAT("\\"",REPLACE(<QUERY>,"([\\\\+\\\\-\\\\&\\\\|\\\\!\\\\(\\\\)\\\\{\\\\}\\\\[\\\\]\\\\^\\\\\\"\\\\~\\\\*\\\\?\\\\:\\\\/\\\\\\\\])","\\\\\\\\$1"),"\\"") AS ?query)
   ?id text:query (?query 1000000000) .
   ?id cs:fulltext ?fulltext .
-  FILTER (REGEX(?fulltext, <REGEXP>,"i"))
+  ?id cs:year ?year .
+  FILTER (REGEX(?fulltext, <REGEXP>,"i") && xsd:int(?year)>=1680)
 }`
     public word: string
+    public sortBy: number = 1
+    public sortDesc: boolean = false
     public concordances: Snippet[]
     public more: boolean = false
-    public open(letterId: string): void {
-      this.$window.open('http://h89.it.helsinki.fi/ceec/func/letterFunc.jsp?letterID=' + letterId, '_blank')
+    public open(letterId: string, text: string, event: MouseEvent): void {
+      if (event.altKey) this.$window.open('https://www.google.com/search?tbm=bks&q=' + encodeURIComponent(text), '_blank')
+      else this.$window.open('http://h89.it.helsinki.fi/ceec/func/letterFunc.jsp?letterID=' + letterId, '_blank')
     }
     public $onChanges(): void {
       if (this.word) this.update()
+    }
+    public setSortBy(index: number): void {
+      if (this.sortBy === index) this.sortDesc = !this.sortDesc
+      this.sortBy = index
+      if (this.sortBy === 0)
+        this.concordances.sort((a: Snippet, b: Snippet) => {
+          return a.beforeSort < b.beforeSort ? (this.sortDesc ? 1 : -1) : (a.beforeSort > b.beforeSort ? (this.sortDesc ? -1 : 1) : 0)
+        })
+      else if (this.sortBy === 1)
+        this.concordances.sort((a: Snippet, b: Snippet) => a.match < b.match ? (this.sortDesc ? 1 : -1)  : (a.match > b.match ? (this.sortDesc ? -1 : 1)  : 0))
+      else this.concordances.sort((a: Snippet, b: Snippet) => a.afterSort < b.afterSort ? (this.sortDesc ? 1 : -1)  : (a.afterSort > b.afterSort ? (this.sortDesc ? -1 : 1)  : 0))
     }
     constructor(private sparqlService: s.SparqlService, private $sce: angular.ISCEService, private $window: angular.IWindowService) {}
 
@@ -44,10 +60,20 @@ SELECT DISTINCT ?id ?fulltext WHERE {
             let before: string
             let after: string
             let parts: string[] = ft.split(regexp)
-            let lastBefore: string = parts[0].length > 120 ? parts[0].substring(parts[0].length - 120) : parts[0]
-            if (parts[0].length > 1000)
-              ft = parts[0].substring(0, 500) + '<span style="color:red">...</span>' + parts[0].substring(parts[0].length - 500)
-            else ft = parts[0]
+            let lastBefore: string
+            if (parts[0].length > 120) {
+              lastBefore = parts[0].substring(parts[0].length - 120)
+              lastBefore = lastBefore.substring(lastBefore.indexOf(' '))
+            } else lastBefore = parts[0]
+            if (parts[0].length > 1000) {
+              let sentences: string[] = parts[0].substring(parts[0].length - 500).split(/([\.\?!])/)
+              sentences[sentences.length - 1] = '<b>' + sentences[sentences.length - 1]
+              ft = parts[0].substring(0, 500) + '<span style="color:red">...</span>' + sentences.join('')
+            } else {
+              let sentences: string[] = parts[0].split(/([\.\?!])/)
+              sentences[sentences.length - 1] = '<b>' + sentences[sentences.length - 1]
+              ft = sentences.join('')
+            }
             for (let i: number = 2; i < parts.length; i += 2) {
               ft += '<span style="color:blue">'
               ft += parts[i - 1]
@@ -55,17 +81,39 @@ SELECT DISTINCT ?id ?fulltext WHERE {
               before = lastBefore
               if (parts[i].length > 120) {
                 after = parts[i].substring(0, 120)
+                after = after.substring(0, after.lastIndexOf(' '))
                 lastBefore = parts[i].substring(parts[i].length - 120)
+                lastBefore = lastBefore.substring(lastBefore.indexOf(' '))
               } else {
                 after = parts[i]
                 lastBefore = parts[i]
               }
-              if (parts[i].length > 1000)
-                ft += parts[i].substring(0, 500) + '<span style="color:red">...</span>' + parts[i].substring(parts[i].length - 500)
-              else ft += parts[i]
-              this.concordances.push(new Snippet(this.$sce.trustAsHtml(before), parts[i - 1], this.$sce.trustAsHtml(after), this.$sce.trustAsHtml(ft), r['id'].value.replace('http://ldf.fi/ceec/letter_', '')))
+              if (parts[i].length > 1000) {
+                let sentences: string[] = parts[i].substring(0, 500).split(/([\.\?!])/)
+                sentences[0] = sentences[0] + '</b>'
+                ft += sentences.join('') + '<span style="color:red">...</span>'
+                if (i + 2 < parts.length) {
+                  sentences = parts[i].substring(parts[i].length - 500).split(/([\.\?!])/)
+                  sentences[sentences.length - 1] = '<b>' + sentences[sentences.length - 1]
+                  ft += sentences.join('')
+                } else ft +=  parts[i].substring(parts[i].length - 500)
+              } else {
+                let sentences: string[] = parts[i].split(/([\.\?!])/)
+                sentences[0] = sentences[0] + '</b>'
+                if (i + 2 < parts.length)
+                  sentences[sentences.length - 1] = '<b>' + sentences[sentences.length - 1]
+                ft += sentences.join('')
+              }
+              tmp.innerHTML = before
+              before = tmp.textContent
+              tmp.innerHTML = after
+              after = tmp.textContent
+              let beforeS: string[] = before.split(/\s/)
+              this.concordances.push(new Snippet(this.$sce.trustAsHtml(before), beforeS[beforeS.length - 1].toLowerCase(), before, parts[i - 1], this.$sce.trustAsHtml(after), after.toLowerCase(), after, this.$sce.trustAsHtml(ft), r['id'].value.replace('http://ldf.fi/ceec/letter_', '')))
             }
           })
+          this.sortDesc = !this.sortDesc
+          this.setSortBy(this.sortBy)
         }
       )
     }
