@@ -1,8 +1,8 @@
 doctype html
-html(lang="en",ng-app="app",ng-hint)
+html(ng-app="app",ng-hint,lang="en")
   head
     meta(charset="utf-8")
-    meta(name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width")
+    meta(name="viewport", content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width")
     // build:css(app) styles/vendor.css
     // bower:css
     link(rel='stylesheet', href='bower_components/bootstrap/dist/css/bootstrap.css')
@@ -10,20 +10,20 @@ html(lang="en",ng-app="app",ng-hint)
     // endbower
     // endbuild
     // build:css(.tmp) styles/main.css
-    link(rel="stylesheet" href="styles/main.css")
+    link(href="styles/main.css" rel="stylesheet")
     // endbuild
 
     title FiCa
   body
-    .modal(ng-class="authOpen ? 'modal-open fade in' : ''",ng-style="authOpen ? {display:'block'} : {}"): .modal-dialog(ng-show="authOpen"): form.modal-content
+    .modal(ng-class="authOpen ? 'modal-open fade in' : ''",ng-show="authOpen",ng-style="authOpen ? {display:'block'} : {}"): form.modal-content
       .modal-header: h4.modal-title Authentication required
       .modal-body
         .form-group
           label Username:
-          input.form-control(type='text', ng-model="username")
+          input.form-control(ng-model="username", type='text')
         .form-group
           label Password:
-          input.form-control(type='password', ng-model="password")
+          input.form-control(ng-model="password", type='password')
       .modal-footer
           button.btn.btn-success(ng-click="setAuth()") Ok
           button.btn.btn-danger(ng-click="dismissAuth()") Cancel
@@ -50,8 +50,10 @@ html(lang="en",ng-app="app",ng-hint)
     // build:js(.tmp) scripts/main.js
     script(src="scripts/app.js")
     // inject:scripts
+    script(src="scripts/b_concord-component.js")
     script(src="scripts/ceec-concord-component.js")
     script(src="scripts/main-component.js")
+    script(src="scripts/octavo-concord-component.js")
     script(src="scripts/selectSheet-service.js")
     // endinject
     // inject:partials

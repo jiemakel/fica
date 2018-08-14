@@ -1,33 +1,35 @@
 {
-    "compilerOptions": {
-        "module": "amd",
-        "target": "es5",
-        "rootDir": "app",
-        "outDir": ".tmp"
-    },
-    "filesGlob": [
-        "app/scripts/**/*.ts",
-        "app/bower_components/**/*.d.ts",
-        "!app/bower_components/**/node_modules/**/*.ts",
-        "!app/bower_components/**/typings/**/*.ts",
-        "!app/bower_components/angular-ui-router/api/angular-ui-router.d.ts",
-        "typings/globals/**/*.d.ts"
-    ],
-    "files": [
-        "app/scripts/app.ts",
-        "app/scripts/ceec-concord-component.ts",
-        "app/scripts/main-component.ts",
-        "app/scripts/selectSheet-service.ts",
-        "app/bower_components/angular-sparql-service/dist/sparql-service.d.ts",
-        "typings/globals/angular-hotkeys/index.d.ts",
-        "typings/globals/angular-ui-bootstrap/index.d.ts",
-        "typings/globals/angular-ui-router/index.d.ts",
-        "typings/globals/angular/index.d.ts",
-        "typings/globals/filesaver/index.d.ts",
-        "typings/globals/jquery/index.d.ts",
-        "typings/globals/papaparse/index.d.ts"
-    ],
-    "atom": {
-        "rewriteTsconfig": true
-    }
+  "compilerOptions": {
+    "module": "amd",
+    "target": "es5",
+    "rootDir": "app",
+    "outDir": ".tmp"
+  },
+  "filesGlob": [
+    "app/scripts/**/*.ts",
+    "app/bower_components/**/*.d.ts",
+    "!app/bower_components/**/node_modules/**/*.ts",
+    "!app/bower_components/**/typings/**/*.ts",
+    "!app/bower_components/angular-ui-router/api/angular-ui-router.d.ts",
+    "typings/globals/**/*.d.ts"
+  ],
+  "files": [
+    "app/scripts/app.ts",
+    "app/scripts/b_concord-component.ts",
+    "app/scripts/ceec-concord-component.ts",
+    "app/scripts/octavo-concord-component.ts",
+    "app/scripts/main-component.ts",
+    "app/scripts/selectSheet-service.ts",
+    "app/bower_components/angular-sparql-service/dist/sparql-service.d.ts",
+    "typings/globals/angular-hotkeys/index.d.ts",
+    "typings/globals/angular-ui-bootstrap/index.d.ts",
+    "typings/globals/angular-ui-router/index.d.ts",
+    "typings/globals/angular/index.d.ts",
+    "typings/globals/filesaver/index.d.ts",
+    "typings/globals/jquery/index.d.ts",
+    "typings/globals/papaparse/index.d.ts"
+  ],
+  "atom": {
+    "rewriteTsconfig": true
+  }
 }
