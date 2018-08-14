@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="app" ng-hint>
+<html ng-app="app" ng-hint lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
@@ -8,28 +8,26 @@
     <title>FiCa</title>
   </head>
   <body>
-    <div class="modal" ng-class="authOpen ? 'modal-open fade in' : ''" ng-style="authOpen ? {display:'block'} : {}">
-      <div class="modal-dialog" ng-show="authOpen">
-        <form class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Authentication required</h4>
+    <div class="modal" ng-class="authOpen ? 'modal-open fade in' : ''" ng-show="authOpen" ng-style="authOpen ? {display:'block'} : {}">
+      <form class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Authentication required</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Username:</label>
+            <input class="form-control" ng-model="username" type="text">
           </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Username:</label>
-              <input class="form-control" type="text" ng-model="username">
-            </div>
-            <div class="form-group">
-              <label>Password:</label>
-              <input class="form-control" type="password" ng-model="password">
-            </div>
+          <div class="form-group">
+            <label>Password:</label>
+            <input class="form-control" ng-model="password" type="password">
           </div>
-          <div class="modal-footer">
-            <button class="btn btn-success" ng-click="setAuth()">Ok</button>
-            <button class="btn btn-danger" ng-click="dismissAuth()">Cancel</button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-success" ng-click="setAuth()">Ok</button>
+          <button class="btn btn-danger" ng-click="dismissAuth()">Cancel</button>
+        </div>
+      </form>
     </div>
     <script src="scripts/vendor.js"></script>
     <script src="scripts/main.js"></script>
