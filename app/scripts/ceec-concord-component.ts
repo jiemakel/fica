@@ -13,7 +13,7 @@ SELECT DISTINCT ?id ?fulltext WHERE {
   ?id text:query (?query 1000000000) .
   ?id cs:fulltext ?fulltext .
   ?id cs:year ?year .
-  FILTER (REGEX(?fulltext, <REGEXP>,"i") && xsd:int(?year)>=1680)
+  FILTER (REGEX(?fulltext, <REGEXP>,"i") && xsd:int(?year)>=1640 && xsd:int(?year)<1660)
 }`;
     public open(letterId: string, text: string, event: MouseEvent): void {
       if (event.altKey)

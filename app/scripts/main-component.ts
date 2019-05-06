@@ -143,28 +143,28 @@ namespace app {
       if (!this.data) this.data = [];
       this.updateGroupedData();
       this.hotkeys.add({
-        combo: "ctrl+1",
+        combo: "ctrl+4",
         allowIn: ["INPUT", "TD"],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
           this.setColumnValues(2, "yes");
         }
       });
       this.hotkeys.add({
-        combo: "ctrl+2",
+        combo: "ctrl+5",
         allowIn: ["INPUT", "TD"],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
           this.setColumnValues(2, "no");
         }
       });
       this.hotkeys.add({
-        combo: "ctrl+3",
+        combo: "ctrl+6",
         allowIn: ["INPUT", "TD"],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
           this.setColumnValues(2, "unclear");
         }
       });
       this.hotkeys.add({
-        combo: "ctrl+4",
+        combo: "ctrl+7",
         allowIn: ["INPUT", "TD"],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
           this.setColumnValues(2, "adj");

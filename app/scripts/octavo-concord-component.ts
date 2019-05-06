@@ -40,60 +40,54 @@ namespace app {
       this.$q
         .all([
           this.$http.get(
-            "https://vm0824.kaj.pouta.csc.fi/octavo/eebo/search?returnMatches&limit=" +
+            "https://vm0824.kaj.pouta.csc.fi/octavo/eebo/search?snippetLimit="+l+"&limit=" +
               l +
               "&query=" +
               w +
               "+publication_year:[1000%20TO%20" +
               y +
-              "]+estc_language:English&timeout=60"
+              "]+estc_language:English&timeout=60&field=author&field=publication_year&field=title"
           ),
           this.$http.get(
-            "https://vm0824.kaj.pouta.csc.fi/octavo/bn/search?returnMatches&limit=" +
+            "https://vm0824.kaj.pouta.csc.fi/octavo/bn/search?snippetLimit="+l+"&limit=" +
               l +
               "&query=" +
               w +
               "+dateStart:[10000000%20TO%20" +
               y +
-              "9999]&timeout=60"
+              "9999]&timeout=60&field=author&field=title&field=dateStart"
           ),
           this.$http.get(
-            "https://vm0824.kaj.pouta.csc.fi/octavo/ecco/search?returnMatches&limit=" +
+            "https://vm0824.kaj.pouta.csc.fi/octavo/ecco/search?snippetLimit="+l+"&limit=" +
               l +
               "&query=" +
               w +
               "+publication_year:[1000%20TO%20" +
               y +
-              "]+estc_language:English&timeout=60"
+              "]+estc_language:English&timeout=60&field=author&field=publication_year&field=title"
           ),
           this.$http.get(
-            "https://vm0824.kaj.pouta.csc.fi/octavo/ecco/search?returnMatches&limit=" +
-              l +
-              "&query=" +
-              w +
-              "+publication_year:[1000%20TO%20" +
-              y +
-              "]+estc_language:English&timeout=60"
-          ),
-
-          this.$http.get(
-            "https://vm0824.kaj.pouta.csc.fi/octavo/bln1800/search?returnMatches&limit=" +
+            "https://vm0824.kaj.pouta.csc.fi/octavo/bln1800/search?snippetLimit="+l+"&limit=" +
               l +
               "&query=" +
               w +
               "+dateStart:[10000000%20TO%20" +
               y +
-              "9999]&timeout=60"
+              "9999]&timeout=60&field=author&field=title&field=dateStart"
           )
         ])
         .then(response => {
           let results: IResult[] = [];
           response.forEach(response => {
+            let name = response.data["queryMetadata"].index.name
             response.data["results"].docs.forEach(doc => {
+              let author = doc.author ? doc.author : "?"
+              let title = doc.title ? doc.title : "?"
+              let year = doc.publication_year ? doc.publication_year : (doc.dateStart ? doc.dateStart : "?")
               doc.snippets.forEach(snippet =>
                 results.push({
                   id: null,
-                  fulltext: snippet.snippet.replace(/<\/?b>/g, "")
+                  fulltext: name+": "+author+": "+year+": "+title+": "+snippet.snippet.replace(/<\/?b>/g, "")
                 })
               );
             });
