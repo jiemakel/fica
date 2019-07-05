@@ -960,7 +960,7 @@ module.run(['$templateCache', function($templateCache) {
     '    <div>{{error}}</div>\n' +
     '  </div>\n' +
     '  <div class="col-xs-6" style="height:100%">\n' +
-    '    <div ng-repeat="context in $ctrl.contexts" bind-html-compile="context" style="height:{{100/$ctrl.contexts.length}}%;overflow:auto"></div>\n' +
+    '    <div ng-repeat="context in $ctrl.contexts" bind-html-compile="context" style="{{$last ? \'max-height:\'+(100/$ctrl.contexts.length)+\'%\' : \'height:100%\'}};overflow:auto"></div>\n' +
     '  </div>\n' +
     '</div>');
 }]);
