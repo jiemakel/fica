@@ -32,7 +32,7 @@ namespace app {
           deferred.resolve(s.data)
         })
       }
-      if (file.type.indexOf('text/') === 0)
+      if (file.type.indexOf('text/') === 0 || file.name.indexOf('.csv') != 0 || file.name.indexOf('.tsv') != 0)
         Papa.parse(file, { complete: (csv): void => {
           if (csv.errors.length !== 0)
             deferred.reject(csv.errors.map(e => e.message).join('\n'))
