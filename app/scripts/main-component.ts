@@ -143,28 +143,28 @@ namespace app {
       if (!this.data) this.data = [];
       this.updateGroupedData();
       this.hotkeys.add({
-        combo: "ctrl+4",
+        combo: "ctrl+q",
         allowIn: ["INPUT", "TD"],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
           this.setColumnValues(2, "yes");
         }
       });
       this.hotkeys.add({
-        combo: "ctrl+5",
+        combo: "ctrl+w",
         allowIn: ["INPUT", "TD"],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
           this.setColumnValues(2, "no");
         }
       });
       this.hotkeys.add({
-        combo: "ctrl+6",
+        combo: "ctrl+e",
         allowIn: ["INPUT", "TD"],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
           this.setColumnValues(2, "unclear");
         }
       });
       this.hotkeys.add({
-        combo: "ctrl+7",
+        combo: "ctrl+r",
         allowIn: ["INPUT", "TD"],
         callback: (event: Event, hotkey: angular.hotkeys.Hotkey): void => {
           this.setColumnValues(2, "adj");
@@ -213,12 +213,14 @@ namespace app {
       this.groupingsUpdated();
     }
     public $onDestroy(): void {
-      this.hotkeys.del("ctrl+1");
-      this.hotkeys.del("ctrl+2");
-      this.hotkeys.del("ctrl+3");
-      this.hotkeys.del("ctrl+4");
+      this.hotkeys.del("ctrl+q");
+      this.hotkeys.del("ctrl+w");
+      this.hotkeys.del("ctrl+e");
+      this.hotkeys.del("ctrl+r");
       this.hotkeys.del("tab");
       this.hotkeys.del("shift+tab");
+      this.hotkeys.del("alt+shift+tab");
+      this.hotkeys.del("alt+tab");
       this.save();
     }
     private next(): void {
