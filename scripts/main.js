@@ -262,7 +262,7 @@ var app;
                 this.word.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&") +
                 "(?:\\W|$))";
             this.sparqlService
-                .query("https://ldf.fi/ceec/sparql", CeecConcordComponentController.query
+                .query("http://ldf.fi/ceec/sparql", CeecConcordComponentController.query
                 .replace(/<REGEXP>/g, this.sparqlService.stringToSPARQLString(regexS))
                 .replace(/<QUERY>/g, this.sparqlService.stringToSPARQLString(this.word)) + (limit ? "LIMIT 31" : ""))
                 .then(function (response) {
@@ -626,7 +626,7 @@ var app;
                         crow[4] +
                         "'\"></octavo-concord>"));
                 if (crow[0])
-                    this.contexts.push(this.$sce.trustAsHtml('<iframe style="width:100%;height:100%" src="https://www.oed.com/search?searchType=dictionary&q=' +
+                    this.contexts.push(this.$sce.trustAsHtml('<iframe style="width:100%;height:100%" src="http://www.oed.com/search?searchType=dictionary&q=' +
                         encodeURI(crow[0]) +
                         '"></iframe>'));
                 if (focus)
